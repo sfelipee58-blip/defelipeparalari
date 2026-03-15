@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uma mensagem</title>
+
+<style>
+
+:root{
+ --bg:#0c0c12;
+ --card:#16161f;
+ --accent:#e63946;
+ --accent-soft:#ff8a7a;
+ --text:#f4f4f4;
+ --muted:#c8c8c8;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:system-ui;
+background:
+radial-gradient(circle at 20% 10%, rgba(230,57,70,.25), transparent 60%),
+radial-gradient(circle at 80% 30%, rgba(255,138,122,.25), transparent 60%),
+linear-gradient(160deg,#0c0c12,#1a0e12);
+color:var(--text);
+min-height:100vh;
+overflow-x:hidden;
+}
+
+/* CORAÇÕES */
+
+.hearts{
+position:fixed;
+inset:0;
+pointer-events:none;
+}
+
+.heart{
+position:absolute;
+color:var(--accent-soft);
+animation:float 12s linear infinite;
+}
+
+@keyframes float{
+0%{transform:translateY(100vh);opacity:0}
+10%{opacity:.7}
+100%{transform:translateY(-10vh);opacity:0}
+}
+
+/* TELAS */
+
+.screen{
+position:fixed;
+inset:0;
+display:flex;
+align-items:center;
+justify-content:center;
+background:#000;
+z-index:999;
+}
+
+.box{
+background:#15151c;
+padding:35px;
+border-radius:18px;
+border:1px solid rgba(255,255,255,.08);
+text-align:center;
+}
+
+/* GRID JOGO */
+
+.grid{
+margin-top:20px;
+display:grid;
+grid-template-columns:repeat(3,70px);
+gap:12px;
+justify-content:center;
+}
+
+.square{
+width:70px;
+height:70px;
+background:#1b1b24;
+border-radius:10px;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+font-size:24px;
+}
+
+/* FRASE */
+
+.words{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+justify-content:center;
+margin-top:20px;
+}
+
+.word{
+background:#1b1b24;
+padding:8px 12px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.phrase{
+margin-top:20px;
+min-height:30px;
+}
+
+/* BOTÃO */
+
+.btn{
+border:none;
+padding:12px 18px;
+border-radius:10px;
+background:linear-gradient(135deg,var(--accent),var(--accent-soft));
+color:white;
+cursor:pointer;
+}
+
+/* HERO */
+
+.hero{
+text-align:center;
+padding:80px 20px 50px;
+}
+
+.hero h1{
+font-size:38px;
+}
+
+/* CARTA */
+
+.letter-box{
+max-width:700px;
+margin:40px auto;
+background:var(--card);
+border-radius:18px;
+padding:30px;
+border:1px solid rgba(255,255,255,.08);
+box-shadow:0 20px 60px rgba(0,0,0,.6);
+display:none;
+}
+
+.signature{
+margin-top:20px;
+color:var(--muted);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="hearts" id="hearts"></div>
+
+<audio id="music" loop>
+<source src="musica.mp3" type="audio/mpeg">
+</audio>
+
+<!-- TELA INICIAL -->
+
+<div class="screen" id="start">
+<div class="box">
+<h2>Tenho algo pra você 💌</h2>
+<p>Feito por Felipe</p>
+<br>
+<button class="btn" onclick="startGame()">Começar</button>
+</div>
+</div>
+
+<!-- JOGO 1 -->
+
+<div class="screen" id="game1" style="display:none;">
+<div class="box">
+<h2>Encontre o coração ❤️</h2>
+<div class="grid" id="grid1"></div>
+</div>
+</div>
+
+<!-- JOGO 2 -->
+
+<div class="screen" id="game2" style="display:none;">
+<div class="box">
+<h2>Monte a frase</h2>
+
+<div class="words" id="words"></div>
+<div class="phrase" id="phrase"></div>
+
+<br>
+<button class="btn" onclick="resetPhrase()">Resetar</button>
+
+</div>
+</div>
+
+<!-- JOGO 3 -->
+
+<div class="screen" id="game3" style="display:none;">
+<div class="box">
+<h2>Último desafio ❤️</h2>
+<div class="grid" id="grid2"></div>
+
+<br>
+<button class="btn" id="openBtn" style="display:none;" onclick="openLetter()">Abrir carta</button>
+</div>
+</div>
+
+<!-- HERO -->
+
+<section class="hero">
+<h1>Pra você, Larissa</h1>
+</section>
+
+<!-- CARTA -->
+
+<section class="letter-box" id="letter">
+
+<p>
+Dia 12/03/2026 ás 17:44 se iniciou uma conversa muito especial pra mim, e desde então cada mensagem sua se tornou especial na minha vida.
+</p>
+
+<p>
+Seu jeito de falar, suas palavras, seu humor, tudo isso me encanta
+e ao mesmo tempo faz acelerar meu coração.
+</p>
+
+<p>
+Eu queria te dizer que gosto muito de você, e cada momento que passamos juntos durante esses dias fez eu pensar em uma coisa muito importante: eu quero estar do seu lado, te fazer sorrir sempre, e te fazer uma menina muito feliz, porque você merece isso e muito mais.
+</p>
+
+<div class="signature">
+Com carinho,<br>
+<strong>Felipe</strong>
+</div>
+
+</section>
+
+<script>
+
+/* CORAÇÕES */
+
+const hearts=document.getElementById("hearts")
+
+for(let i=0;i<25;i++){
+
+let h=document.createElement("div")
+h.className="heart"
+h.innerHTML="❤"
+
+h.style.left=Math.random()*100+"vw"
+h.style.fontSize=(14+Math.random()*18)+"px"
+h.style.animationDuration=(8+Math.random()*6)+"s"
+
+hearts.appendChild(h)
+
+}
+
+/* INICIAR */
+
+function startGame(){
+
+start.style.display="none"
+game1.style.display="flex"
+
+}
+
+/* JOGO 1 */
+
+const grid1=document.getElementById("grid1")
+const heartPos=Math.floor(Math.random()*9)
+
+for(let i=0;i<9;i++){
+
+let div=document.createElement("div")
+div.className="square"
+
+div.onclick=()=>{
+
+if(i===heartPos){
+
+div.innerHTML="❤️"
+
+setTimeout(()=>{
+game1.style.display="none"
+game2.style.display="flex"
+},800)
+
+}else{
+
+div.innerHTML="❌"
+
+}
+
+}
+
+grid1.appendChild(div)
+
+}
+
+/* FRASE */
+
+const correct="eu gosto de voce"
+
+const wordsDiv=document.getElementById("words")
+const phraseDiv=document.getElementById("phrase")
+
+let phrase=[]
+let words=correct.split(" ").sort(()=>Math.random()-0.5)
+
+words.forEach(w=>{
+
+let btn=document.createElement("div")
+btn.className="word"
+btn.innerText=w
+
+btn.onclick=()=>{
+
+phrase.push(w)
+phraseDiv.innerText=phrase.join(" ")
+
+if(phrase.join(" ")===correct){
+
+setTimeout(()=>{
+game2.style.display="none"
+game3.style.display="flex"
+},800)
+
+}
+
+}
+
+wordsDiv.appendChild(btn)
+
+})
+
+function resetPhrase(){
+phrase=[]
+phraseDiv.innerText=""
+}
+
+/* JOGO FINAL */
+
+const grid2=document.getElementById("grid2")
+const finalPos=Math.floor(Math.random()*9)
+
+for(let i=0;i<9;i++){
+
+let div=document.createElement("div")
+div.className="square"
+
+div.onclick=()=>{
+
+if(i===finalPos){
+
+div.innerHTML="❤️"
+openBtn.style.display="inline-block"
+
+}else{
+
+div.innerHTML="❌"
+
+}
+
+}
+
+grid2.appendChild(div)
+
+}
+
+/* ABRIR CARTA */
+
+function openLetter(){
+
+game3.style.display="none"
+
+document.getElementById("letter").style.display="block"
+
+startMusic()
+
+}
+
+/* MUSICA SUAVE */
+
+function startMusic(){
+
+const music=document.getElementById("music")
+
+music.volume=0
+music.play().catch(()=>{})
+
+let v=0
+
+let fade=setInterval(()=>{
+
+v+=0.02
+
+if(v>=0.35){
+
+music.volume=0.35
+clearInterval(fade)
+
+}else{
+
+music.volume=v
+
+}
+
+},120)
+
+}
+
+</script>
+
+</body>
+</html>
